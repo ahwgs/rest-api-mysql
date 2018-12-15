@@ -59,7 +59,7 @@ const TokenUtil = {
         try {
             const user = jwt.verify(token, secretKey)
             if (!user) return ''
-            return user.id
+            return user.userId
         } catch (e) {
             console.log(e);
         }

@@ -26,5 +26,20 @@ router.get('/user/getCaptcha', (req, res, next) => {
     return UserController.getCaptcha(req, res, next)
 })
 
+//修改个人资料
+router.get('/user/editUserInfo', (req, res, next) => {
+    return UserController.editUserInfo(req, res, next)
+})
+
+//删除用户
+router.get('/user/deleteUser',(req, res, next)=>{
+    return UserController.deleteUser(req, res, next)
+})
+
+//拉取所有用户
+router.get('/user/getAllUserList',(req, res, next)=>{
+    return UserController.getAllUserList(req, res, next)
+})
+
 
 module.exports = router
