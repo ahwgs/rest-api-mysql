@@ -1,18 +1,20 @@
 {
   "name": "rest-api-mysql",
   "version": "1.0.0",
-  "description": "",
+  "description": "node 学习",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "w候人兮猗 https://www.ahwgs.cn",
+  "license": "MIT",
   "dependencies": {
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
+    "express-session": "^1.15.6",
     "gravatar": "^1.8.0",
     "jsonwebtoken": "^8.4.0",
     "mysql": "^2.16.0",

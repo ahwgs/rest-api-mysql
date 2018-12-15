@@ -3,9 +3,23 @@ const MsgUtil = require('../utils/msgUtil');
 const TokenUtil = require('../utils/tokenUtil');
 const gravatar = require('gravatar');
 const bcrypt = require('bcrypt');
-
+const svgCaptcha = require('svg-captcha')
 
 const UserController = {
+
+    async test(req, res, next) {
+        res.json('我是测试')
+    },
+
+    /**
+     * verifyToken
+     * @returns {Promise<void>}
+     */
+    async verifyToken(req, res, next) {
+        res.json({
+            ...MsgUtil.createSuccessMsg()
+        })
+    },
 
     /**
      * login
@@ -14,9 +28,35 @@ const UserController = {
      * @returns {Promise<createServer.NextHandleFunction | Response | * | Promise<any>>}
      */
     async login(req, res, next) {
-        const {email, password} = req.body;
+        const {email, password, code} = req.body;
 
         try {
+            if (!email) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('请输入邮箱')
+                })
+            } else if (!password) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('请输入密码')
+                })
+            } else if (!code) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('请输入验证码')
+                })
+            }
+
+
+            // //判断验证码是否正确
+            if (req.session.captcha === 'undefined' || !req.session.captcha) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('请输入正确的验证码')
+                })
+            }
+            if (code !== req.session.captcha) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('验证码错误')
+                })
+            }
             await UserModel.selectUserByEmail(email)
                 .then((result) => {
                     //查到了
@@ -71,6 +111,20 @@ const UserController = {
         const {name, email, password} = req.body;
         try {
 
+            if (!email) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('请输入邮箱')
+                })
+            } else if (!password) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('请输入密码')
+                })
+            } else if (!name) {
+                return res.json({
+                    ...MsgUtil.createWarnMsg('请输入昵称')
+                })
+            }
+
             //查询这个人是否存在
             const isExit = await UserModel.selectUserIsExit(email)
             //存在
@@ -102,6 +156,38 @@ const UserController = {
             console.log(e);
             return res.json({...MsgUtil.createErrorMsg()})
         }
+    },
+
+    /**
+     * captcha
+     * @returns {Promise<void>}
+     */
+    async getCaptcha(req, res, next) {
+        try {
+            const captcha = svgCaptcha.create({
+                // 翻转颜色
+                inverse: false,
+                // 字体大小
+                fontSize: 36,
+                // 噪声线条数
+                noise: 2,
+                // 宽度
+                width: 80,
+                // 高度
+                height: 30,
+            });
+            // 保存到session,忽略大小写
+            req.session.captcha = captcha.text.toLowerCase();
+            res.setHeader('Content-Type', 'image/svg+xml');
+            res.write(String(captcha.data));
+            res.end();
+        } catch (e) {
+            console.log(e);
+            return res.json({
+                ...MsgUtil.createErrorMsg()
+            })
+        }
+
     }
 }
 

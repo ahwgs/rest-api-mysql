@@ -6,7 +6,7 @@ const TokenUtil = {
     //生成token
     generateToken(rule) {
         try {
-            return jwt.sign(rule, secretKey, {expiresIn: 3600 * 24});
+            return jwt.sign(rule, secretKey, {expiresIn: 60 * 1000});  //一小时
         } catch (e) {
             console.log('generateToken error', e);
         }
@@ -15,14 +15,16 @@ const TokenUtil = {
     //校验token
     verifyToken(req, res, next) {
 
-        const allowUri = [
-            '/api/user/test',
+        const allow = [
+            '/',
+            '/api/test',
             '/api/user/login',
-            '/api/user/register'
+            '/api/user/register',
+            '/api/user/getCaptcha'
         ]
 
         try {
-            if (allowUri.indexOf(req.url) < 0) {
+            if (allow.indexOf(req.url) < 0) {
                 //token可能存在post请求和get请求
                 let token = req.body.token || req.query.token || req.headers.token;
                 jwt.verify(token, secretKey, (err, decode) => {
@@ -37,6 +39,9 @@ const TokenUtil = {
             }
         } catch (e) {
             console.log(e);
+            return res.json({
+                ...MsgUtil.createErrorMsg()
+            })
         }
 
 

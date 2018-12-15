@@ -2,7 +2,7 @@ module.exports = {
     mysqlConf: {
         host: 'localhost',
         user: 'root',
-        password: '123456',
+        password: '',
         database: 'blogAdmin',
         port: '3306'
     },
