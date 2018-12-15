@@ -30,4 +30,5 @@ cnpm run server
 - getCaptcha获取图形验证码
 - editUserInfo修改个人资料
 - deleteUser 删除用户
-- getAllUserList拉取所有用户
+
+##### posts

@@ -17,7 +17,7 @@ const TokenUtil = {
 
         const allow = [
             '/',
-            '/api/test',
+            '/api/user/test',
             '/api/user/login',
             '/api/user/register',
             '/api/user/getCaptcha'

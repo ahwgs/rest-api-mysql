@@ -1,4 +1,5 @@
 const path = require('path')
+const fs = require('fs')
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');  //获取post body中的数据
@@ -24,7 +25,15 @@ app.use(TokenUtil.verifyToken)
 
 
 // router
-app.use('/api', router)
+// app.use('/api/user', router.user)
+// app.use('/api/post', router.post)
+fs.readdirSync(path.join(__dirname, 'routers')).reverse().forEach((file, index) => {
+    if (!(/\.js$/i.test(file))) return;
+    let route = file.replace(/\.js$/i, '').replace(/index/i, '')
+    if (route !== '') {
+        app.use(`/api/${route}`, router[route])
+    }
+})
 
 // public
 app.use(express.static(path.join(__dirname, 'public')))
