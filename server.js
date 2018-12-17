@@ -29,7 +29,7 @@ app.use(TokenUtil.verifyToken)
 // app.use('/api/post', router.post)
 fs.readdirSync(path.join(__dirname, 'routers')).reverse().forEach((file, index) => {
     if (!(/\.js$/i.test(file))) return;
-    let route = file.replace(/\.js$/i, '').replace(/index/i, '')
+    const route = file.replace(/\.js$/i, '').replace(/index/i, '')
     if (route !== '') {
         app.use(`/api/${route}`, router[route])
     }

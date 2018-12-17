@@ -22,7 +22,7 @@ router.get('/verifyToken', (req, res, next) => {
 })
 
 //图形验证码
-router.get('/getCaptcha', (req, res, next) => {
+router.post('/getCaptcha', (req, res, next) => {
     return UserController.getCaptcha(req, res, next)
 })
 

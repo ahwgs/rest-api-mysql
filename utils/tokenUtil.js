@@ -22,10 +22,13 @@ const TokenUtil = {
             '/api/user/register',
             '/api/user/getCaptcha'
         ]
+        const {url} = req
 
         try {
-            if (allow.indexOf(req.url) < 0) {
+            if (allow.indexOf(url) < 0) {
                 //token可能存在post请求和get请求
+                console.log(url);
+                console.log(allow.indexOf(url) < 0);
                 let token = req.body.token || req.query.token || req.headers.token;
                 jwt.verify(token, secretKey, (err, decode) => {
                     if (err) {

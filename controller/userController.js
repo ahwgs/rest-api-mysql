@@ -4,7 +4,9 @@ const TokenUtil = require('../utils/tokenUtil');
 const gravatar = require('gravatar');
 const bcrypt = require('bcrypt');
 const svgCaptcha = require('svg-captcha')
-const Util = require('../utils/util')
+const Util = require('../utils/util');
+const redisHelper = require('../config/redis')
+
 
 const getUserInfo = (result, res) => {
     try {
@@ -35,7 +37,25 @@ const getUserInfo = (result, res) => {
 const UserController = {
 
     async test(req, res, next) {
-        res.json('我是测试')
+        try {
+
+            redisHelper.setString('name', 'ahwgs', 60, (err, result) => {
+                if (err) throw err
+
+                console.log(result);
+
+            })
+
+            redisHelper.getString('name', (err, result) => {
+                if (err) throw err
+                console.log(result);
+                res.json(result)
+            })
+
+        } catch (e) {
+            console.log(e);
+        }
+
     },
 
     /**
@@ -71,39 +91,40 @@ const UserController = {
                     ...MsgUtil.createWarnMsg('请输入验证码')
                 })
             }
-
-
-            // //判断验证码是否正确
-            if (req.session.captcha === 'undefined' || !req.session.captcha) {
-                return res.json({
-                    ...MsgUtil.createWarnMsg('请输入正确的验证码')
-                })
-            }
-            if (code !== req.session.captcha) {
-                return res.json({
-                    ...MsgUtil.createWarnMsg('验证码错误')
-                })
-            }
-            await UserModel.selectUserByEmail(email)
-                .then((result) => {
-                    //查到了
-                    if (result && result.length > 0) {
-                        bcrypt.compare(password, result[0].password)
-                            .then(isMatch => {
-                                if (isMatch) {
-                                    getUserInfo(result, res)
-                                } else {
-                                    return res.json({
-                                        ...MsgUtil.createWarnMsg('密码错误')
-                                    })
-                                }
+            //从redis中查是否有这个人的验证码
+            redisHelper.getString(email).then(result => {
+                if (result === '' || !result || code !== result) {
+                    return res.json({...MsgUtil.createWarnMsg('验证码错误')})
+                }
+                UserModel.selectUserByEmail(email)
+                    .then((result) => {
+                        //查到了
+                        if (result && result.length > 0) {
+                            bcrypt.compare(password, result[0].password)
+                                .then(isMatch => {
+                                    if (isMatch) {
+                                        getUserInfo(result, res)
+                                    } else {
+                                        return res.json({
+                                            ...MsgUtil.createWarnMsg('密码错误')
+                                        })
+                                    }
+                                })
+                        } else {
+                            return res.json({
+                                ...MsgUtil.createWarnMsg('该用户不存在')
                             })
-                    } else {
-                        return res.json({
-                            ...MsgUtil.createWarnMsg('该用户不存在')
-                        })
-                    }
+                        }
+                    }).catch(err => {
+                    console.log(err);
+                    return res.json({...MsgUtil.createErrorMsg()})
                 })
+            }).catch(err => {
+                console.log(err);
+                return res.json({...MsgUtil.createErrorMsg()})
+            })
+
+
             //登录成功
         } catch (e) {
             console.log(e);
@@ -180,6 +201,8 @@ const UserController = {
      */
     async getCaptcha(req, res, next) {
         try {
+            const {email} = req.body
+            const effectTime = 60 * 3  //3分钟
             const captcha = svgCaptcha.create({
                 // 翻转颜色
                 inverse: false,
@@ -193,10 +216,19 @@ const UserController = {
                 height: 30,
             });
             // 保存到session,忽略大小写
-            req.session.captcha = captcha.text.toLowerCase();
-            res.setHeader('Content-Type', 'image/svg+xml');
-            res.write(String(captcha.data));
-            res.end();
+            redisHelper.setString(email, captcha.text.toLowerCase(), effectTime).then(result => {
+                if (result) {
+                    res.setHeader('Content-Type', 'image/svg+xml');
+                    res.write(String(captcha.data));
+                    res.end();
+                }
+            }).catch(err => {
+                console.log(err);
+                return res.json({
+                    ...MsgUtil.createWarnMsg('验证码获取失败')
+                })
+            })
+
         } catch (e) {
             console.log(e);
             return res.json({
