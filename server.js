@@ -14,27 +14,29 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json())
 
 //使用express-session中间件
-app.use(session({
-    secret: secretKey,
-    resave: false,
-    saveUninitialized: true
-}))
+// app.use(session({
+//     secret: secretKey,
+//     resave: false,
+//     saveUninitialized: true
+// }))
 
 //token 校验
 app.use(TokenUtil.verifyToken)
 
 
 // router
-// app.use('/api/user', router.user)
-// app.use('/api/post', router.post)
 fs.readdirSync(path.join(__dirname, 'routers')).reverse().forEach((file, index) => {
-    if (!(/\.js$/i.test(file))) return;
-    const route = file.replace(/\.js$/i, '').replace(/index/i, '')
-    if (route !== '') {
-        app.use(`/api/${route}`, router[route])
+    try {
+        if (!(/\.js$/i.test(file))) return;
+        const route = file.replace(/\.js$/i, '').replace(/index/i, '')
+        if (route !== '') {
+            app.use(`/api/${route}`, router[route])
+        }
+    } catch (e) {
+        console.log(e);
     }
-})
 
+})
 // public
 app.use(express.static(path.join(__dirname, 'public')))
 

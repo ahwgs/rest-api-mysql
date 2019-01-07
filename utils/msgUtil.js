@@ -22,6 +22,14 @@ const MsgUtil = {
         }
     },
 
+    //创建操作异常的消息方法
+    createBadParamsErrorMsg() {
+        return {
+            msg: '参数错误',
+            status: 1
+        }
+    },
+
     //创建操作错误的消息方法
     createTokenFailureMsg() {
         return {
