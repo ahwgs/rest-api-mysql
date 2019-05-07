@@ -21,7 +21,7 @@ app.use(bodyParser.json())
 // }))
 
 //token 校验
-app.use(TokenUtil.verifyToken)
+// app.use(TokenUtil.verifyToken)
 
 
 // router

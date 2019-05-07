@@ -1,7 +1,7 @@
 const redis = require('redis');
 const config = require('./keys').redis
 
-const client = redis.createClient(config.port, config.url);
+const client = redis.createClient(config.port, config.url); // 实例redis对象
 
 //连接错误处理
 client.on("error", err => {

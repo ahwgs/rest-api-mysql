@@ -38,19 +38,19 @@ const UserController = {
 
     async test(req, res, next) {
         try {
+            // redisHelper.setString('name','w候人兮猗',60 * 3).then((res)=>{
+            //     console.log('设置成功')
+            // }).catch((err=>{
+            //     console.log('设置失败',err)
+            // }))
 
-            redisHelper.setString('name', 'ahwgs', 60, (err, result) => {
-                if (err) throw err
-
-                console.log(result);
-
-            })
-
-            redisHelper.getString('name', (err, result) => {
-                if (err) throw err
-                console.log(result);
-                res.json(result)
-            })
+            redisHelper.getString('name')
+                .then(result => {
+                    return res.json(result)
+                })
+                .catch(err => {
+                    console.log(err)
+                })
 
         } catch (e) {
             console.log(e);
@@ -228,6 +228,7 @@ const UserController = {
                     ...MsgUtil.createWarnMsg('验证码获取失败')
                 })
             })
+
 
         } catch (e) {
             console.log(e);
